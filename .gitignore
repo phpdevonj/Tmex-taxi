@@ -1,0 +1,10 @@
+/node_modules
+/public/hot
+/public/storage
+/storage/*.key
+/vendor
+.env
+.env.backup
+.phpunit.result.cache
+.vscode
+taxi-59f7c-firebase-adminsdk-fbsvc-ae657bd1ea.json

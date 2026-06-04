@@ -1,0 +1,758 @@
+ /* NEW THEME CSS START */
+
+
+* {
+    font-family: "Poppins", sans-serif;
+}
+
+.hero-section {
+   /*background: linear-gradient(135deg, #14b8a6 0%, #0891b2 100%);*/
+   min-height: 100vh;
+   position: relative;
+   overflow: hidden;
+   background-image: url(../../img/website/banner-overlay.png);
+   background-repeat: no-repeat;
+   background-size: cover;
+}
+
+ .hero-section::before {
+   content: '';
+   position: absolute;
+   top: 0;
+   left: 0;
+   right: 0;
+   bottom: 0;
+   background: url(../../img/website/banner.png) center / cover;
+   opacity: 1;
+   z-index: -1;
+}
+.banner-para {
+   font-size: 22px;
+   font-weight: 400;
+   max-width: 590px;
+   width: 100%;
+}
+
+.hero-content {
+   position: relative;
+   z-index: 2;
+}
+.banner-heading {
+   font-size: 44px;
+   font-weight: 600;
+}
+.sign-up-btn a {
+   background: #fff;
+   color: #000;
+   border-radius: 25px;
+   padding: 10px 30px;
+   font-size: 16px;
+   font-family: "poppins";
+   font-weight: 500;
+}
+
+.app-download-btn {
+   margin-right: 10px;
+   transition: all 0.3s ease;
+}
+
+.app-download-btn:hover {
+   transform: translateY(-2px);
+}
+
+.feature-card {
+   background: white;
+   border-radius: 12px;
+   padding: 2rem;
+   text-align: center;
+   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+   transition: all 0.3s ease;
+   height: 100%;
+}
+
+.feature-card:hover {
+   transform: translateY(-5px);
+   box-shadow: 0 8px 30px rgba(0, 0, 0, 0.15);
+}
+
+.feature-icon {
+   width: 80px;
+   height: 80px;
+   background: linear-gradient(135deg, #14b8a6, #0891b2);
+   border-radius: 50%;
+   display: flex;
+   align-items: center;
+   justify-content: center;
+   margin: 0 auto 1.5rem;
+   font-size: 2rem;
+   color: white;
+}
+
+.about-section {
+   background: #DDDDDD33;
+}
+
+
+.feature-list-item {
+   display: flex;
+   align-items: flex-start;
+   gap: 1rem;
+   margin-bottom: 2rem;
+}
+
+.feature-list-icon {
+   display: flex;
+   align-items: center;
+   justify-content: center;
+   flex-shrink: 0;
+}
+
+.download-section {
+   background: #00ADB4BF;
+   position: relative;
+   min-height: 450px;
+}
+
+.signup-step {
+   text-align: center;
+   padding: 1.5rem;
+   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+   border-radius: 10px;
+}
+
+.signup-step-number {
+   width: 60px;
+   height: 60px;
+   background: linear-gradient(135deg, #14b8a6, #0891b2);
+   border-radius: 50%;
+   display: flex;
+   align-items: center;
+   justify-content: center;
+   color: white;
+   font-weight: 700;
+   font-size: 1.5rem;
+   margin: 0 auto 1rem;
+}
+.sing-up-section {
+   background: #DDDDDD33;
+}
+.sign-up-inner {
+   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+   border-radius: 20px;
+   padding: 60px 40px;
+   background: #fff;
+}
+.sign-up-inner h2 {
+   font-size: 40px;
+   color: #00ADB4;
+   font-weight: 600;
+}
+
+.footer-section {
+   background: #fff;
+   box-shadow: rgba(0, 0, 0, 0.02) 0px 1px 3px 0px, rgba(27, 31, 35, 0.15) 0px 0px 0px 1px;
+   /*box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);*/
+}        
+
+.social-icon {
+   width: 40px;
+   height: 40px;
+   background: #00ADB4;
+   border-radius: 50%;
+   display: inline-flex;
+   align-items: center;
+   justify-content: center;
+   color: white;
+   text-decoration: none;
+   margin: 0 5px;
+   transition: all 0.3s ease;
+}
+
+.social-icon:hover {
+   background: #0891b2;
+   color: white;
+   transform: translateY(-2px);
+}
+
+.btn-primary-custom {
+   background: #00ADB4;
+   border: none;
+   border-radius: 10px;
+   padding: 12px 30px;
+   font-weight: 500;
+   transition: all 0.3s ease;
+   color: #fff;
+   font-size: 18px;
+}
+
+.btn-primary-custom:hover {
+   transform: translateY(-2px);
+   box-shadow: 0 8px 20px rgba(20, 184, 166, 0.3);
+   color: #fff;
+}
+
+.taxi-illustration {
+   max-width: 100%;
+   height: auto;
+}
+.section-heading-text {
+   font-size: 40px;
+   font-weight: 600;
+   color: #00ADB4;
+}
+.section-para-text {
+   font-size: 16px;
+   font-weight: 400;
+   color: #1F2937;
+}
+.feature-card h5, .feature-card p {
+   text-align: left;
+}
+.feature-card h5 {
+   font-size: 20px;
+   font-weight: 600;
+   color: #000;
+}
+.feature-card p {
+   font-size: 16px;
+   color: #1F2937;
+   font-weight: 400;
+}
+.small-title {
+   font-size: 20px;
+   font-weight: 600;
+   color: #000;
+}
+.large-title {
+   font-size: 36px;
+   color: #00ADB4;
+   font-weight: 600;
+}
+.abt-para,.feature-para,.sign-up-para {
+   font-size: 16px;
+   font-weight: 400;
+   color: #1F2937;
+}
+.feature-subhead,.sign-up-subhead{
+   font-size: 22px;
+   color: #000;
+   font-weight: 500;
+}
+.app-link-footer {
+   gap: 20px;
+}
+.social-links {
+   text-align: center;
+}
+.download-section:before {
+   content: '';
+   position: absolute;
+   top: 0;
+   left: 0;
+   right: 0;
+   bottom: 0;
+   background: url(../../img/website/download-app-banner.png) center / cover;
+   opacity: 1;
+   z-index: -1;
+}
+.download-inner-content {
+   transform: translate(-50%, -50%);
+   left: 50%;
+   top: 50%;
+   position: absolute;
+}
+.download-inner-content h2 {
+   font-size: 40px;
+   font-weight: 600;
+}
+.download-inner-content p {
+   font-size: 16px;
+   font-weight: 500;
+}
+.footer-logo-col p,.footer-link-col ul li a,
+.footer-contact-col p {
+   color: #1F2937;
+   font-size: 15px;
+   font-weight: 500;
+}
+.footer-link-col h6,.footer-contact-col h6 {
+   color: #000;
+   font-size: 18px;
+   font-weight: 700;
+}
+.footer-contact-col p small {
+   font-size: 15px;
+}
+.app-link-footer .app-download-btn img {
+   width: 100%;
+}
+.footer-link-col ul li i {
+   padding-right: 3px;
+}
+.copy-right-section p {
+   text-align: center;
+   margin: 0;
+   color: #1F2937;
+   font-size: 15px;
+}
+
+/*sign up page css start*/
+.text-teal {
+   color: #00ADB4;
+}
+.driver-req-list label {
+   color: #1F2937;
+}
+.sign-subtitle {
+   font-size: 16px;
+   color: #1F2937;
+   font-weight: 400;
+}
+.requirements-section h5 {
+   font-size: 28px;
+}
+.btn-teal {
+   background-color: #20b2aa;
+   border-color: #20b2aa;
+   color: white;
+}
+.btn-teal:hover {
+   background-color: #1a9999;
+   border-color: #1a9999;
+   color: white;
+}
+/* Added gradient header styles */
+.header-gradient {
+   background: url(../../img/website/hero-section.png);
+   color: white;
+   padding: 10px 0;
+   background-repeat: no-repeat;
+   background-size: cover;
+}
+
+.requirements-section {
+   padding: 50px 0;
+}
+.form-check-input:checked {
+   background-color: #20b2aa;
+   border-color: #20b2aa;
+}
+.sign-form-step form input,.sign-form-step form select {
+   border-radius: 10px;
+   height: 60px;
+   border: 2px solid #DFDFDF;
+}
+.sign-form-step form {
+   padding-top: 50px;
+}
+.nav-icon {
+   text-align: center;
+   color: #6c757d;
+   text-decoration: none;
+}
+.nav-icon:hover {
+   color: #20b2aa;
+}
+.sign-form-step form label {
+   color: #4C525B;
+   font-weight: 500;
+}
+.password-toggle {
+   position: absolute;
+   right: 10px;
+   top: 50%;
+   transform: translateY(-50%);
+   cursor: pointer;
+   color: #6c757d;
+}
+.progress-step {
+   display: flex;
+   align-items: center;
+   text-decoration: none;
+   color: #6c757d;
+   flex-direction: column;
+}
+.progress-step.active {
+   color: #20b2aa;
+}
+.progress-step.completed {
+   color: #20b2aa;
+}
+.step-icon {
+   width: 40px;
+   height: 40px;
+   border-radius: 50%;
+   display: flex;
+   align-items: center;
+   justify-content: center;
+   border: 2px solid #F0F6FF;
+   background-color: #F0F6FF;
+}
+.progress-step.active .step-icon,
+.progress-step.completed .step-icon {
+   border-color: #20b2aa;
+   background-color: #20b2aa;
+   color: white;
+}
+.progress-line {
+   flex: 1;
+   height: 2px;
+   background-color: #F0F6FF;
+   /*margin: 0 20px;*/
+}
+.progress-line.completed {
+   background-color: #20b2aa;
+}
+.step-hidden {
+   display: none;
+}
+.required {
+   color: #dc3545;
+}
+.document-upload {
+   border: 2px dashed #dee2e6;
+   border-radius: 8px;
+   padding: 2rem;
+   text-align: center;
+   background-color: #f8f9fa;
+   cursor: pointer;
+   transition: all 0.3s ease;
+   position: relative;
+}
+.document-upload:hover {
+   border-color: #20b2aa;
+   background-color: #f0fdfc;
+}
+.document-upload.dragover {
+   border-color: #20b2aa;
+   background-color: #f0fdfc;
+}
+.upload-icon {
+   font-size: 2rem;
+   color: #6c757d;
+   margin-bottom: 1rem;
+}
+.upload-text {
+   color: #6c757d;
+   font-size: 0.9rem;
+}
+.document-preview {
+   position: relative;
+   display: none;
+   height: auto;
+   text-align: center;
+   max-height: 200px;
+   width: 100%;
+}
+.document-preview div small {
+   /* white-space: nowrap; */
+   overflow: hidden;
+   text-overflow: ellipsis;
+   height: 23px;
+   display: block;
+}
+.document-preview img {
+   max-width: 200px;
+   height: 150px;
+   border-radius: 4px;
+   width: 100%;
+}
+.upload-docs {
+   display: flex;
+   align-items: center;
+}
+.remove-document {
+   position: absolute;
+   top: -8px;
+   right: -8px;
+   background-color: #dc3545;
+   color: white;
+   border: none;
+   border-radius: 50%;
+   width: 24px;
+   height: 24px;
+   display: flex;
+   align-items: center;
+   justify-content: center;
+   cursor: pointer;
+   font-size: 0.8rem;
+}
+.remove-document:hover {
+   background-color: #c82333;
+}
+.driver-req-list {
+   display: flex;
+   gap: 5px;
+}
+.sign-form-step .form-label {
+ font-weight: 600;
+}
+.sign-form-step .file-upload {
+border: 1px solid #ddd;
+padding: 10px;
+border-radius: 5px;
+display: flex;
+align-items: center;
+cursor: pointer;
+justify-content: start;
+text-align: center;
+border-radius: 10px;
+height: 60px;
+border: 2px solid #DFDFDF;
+}
+.sign-form-step .file-upload input[type="file"] {
+display: none;
+}
+.sign-form-step .file-text {
+margin-left: 5px;
+white-space: nowrap;
+overflow: hidden;
+text-overflow: ellipsis;
+max-width: 250px;
+}
+/*sign css end*/
+
+/*privacy policy page css start*/
+.policy-container {
+   background: white;
+   border-radius: 8px;
+   box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+}
+.section-header {
+   background-color: #e3f2fd;
+   border-left: 4px solid #00ADB4;
+   padding: 15px 20px;
+   margin: 0 -20px 20px -20px;
+   font-weight: 600;
+   color: #00ADB4;
+}
+.subsection-title {
+   font-weight: 600;
+   color: #000;
+   margin-top: 20px;
+   margin-bottom: 10px;
+}
+.last-updated {
+   color: #666;
+   font-size: 0.9rem;
+   margin-bottom: 30px;
+   padding-bottom: 15px;
+   border-bottom: 1px solid #e0e0e0;
+}
+.policy-container ul {
+   padding-left: 20px;
+}
+.policy-container li {
+   margin-bottom: 8px;
+   line-height: 1.5;
+   color: #1F2937;
+}
+.section-content {
+   margin-bottom: 30px;
+}
+.intro-text {
+   color: #1F2937;
+   margin-bottom: 20px;
+   line-height: 1.6;
+}
+.Privacy-policy-banner-content .banner-para {
+   text-align: center;
+   max-width: 100%;
+}
+.Privacy-policy-banner-content h1 {
+   text-align: center;
+}
+.privacy-policy-hero-section {
+   background: url(../../img/website/privacy-policy.png);
+   background-repeat: no-repeat !important;
+   background-size: cover;
+   height: 100vh;
+}
+.privacy-policy-hero-section:after {
+   content: "";
+   background-color: #00ADB4BF;
+   position: absolute;
+   height: 100vh;
+   left: 0;
+   top: 0;
+   width: 100%;
+}
+.privacy-contact-section {
+   background: #00ADB4;
+   min-height: 300px;
+   border: 2px solid #e9ecef;
+   position: relative;
+   border-radius: 10px;
+}
+
+.contact-btn {
+   background-color: white;
+   color: #00ADB4;
+   border: none;
+   font-weight: 500;
+   transition: all 0.3s ease;
+   border-radius: 10px !important;
+}
+
+.contact-btn:hover {
+   background-color: #f8f9fa;
+   color: #138496;
+   transform: translateY(-2px);
+   box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
+.stats-indicator {
+   position: absolute;
+   bottom: 10px;
+   left: 50%;
+   transform: translateX(-50%);
+   background: rgba(255,255,255,0.2);
+   padding: 5px 15px;
+   border-radius: 20px;
+   font-size: 0.8rem;
+   color: white;
+}
+.terms-condition-hero-section {
+  background: url(../../img/website/terms-pic.jpg);
+  background-repeat: no-repeat !important;
+  background-size: cover;
+  height: 100vh;
+}
+.terms-condition-hero-section:after {
+  content: "";
+  background-color: #00ADB4BF;
+  position: absolute;
+  height: 100vh;
+  left: 0;
+  top: 0;
+  width: 100%;
+}
+.error-message {
+   color: red;
+   font-size: 12px;
+   margin-top: 4px;
+}
+
+.invalid-field {
+   border: 1px solid red;
+}
+.iti {
+   width: 100% !important;
+}
+.itiflagcode .iti__flag-container{
+   height: 60px;
+}
+
+.profile-upload-container {
+    display: flex;
+    justify-content: center;
+    margin: 10px 0;
+}
+.profile-preview {
+    width: 120px;
+    height: 120px;
+    border: 2px dashed #ddd;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    overflow: hidden;
+    position: relative;
+}
+.profile-preview:hover {
+    border-color: #007bff;
+    background-color: #f8f9fa;
+}
+.upload-placeholder {
+    text-align: center;
+    padding: 10px;
+}
+.profile-preview img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 50%;
+}
+@media(max-width: 991px){
+.feature-mob-left {
+   order: 2;
+   margin-top: 50px;
+}
+.about-section-right{
+   margin-top: 50px;
+}
+.about-section img {
+   width: 100%;
+}
+.feature-card h5, .feature-card p {
+   text-align: center;
+}
+
+}
+@media (max-width: 768px) {
+   .hero-section {
+       min-height: 80vh;
+   }
+   
+   .tmex-logo {
+       font-size: 1.5rem;
+   }
+   
+   .feature-card {
+       margin-bottom: 2rem;
+   }
+   
+   .app-download-btn {
+       width: 100%;
+       justify-content: center;
+       margin: 10px 0;
+   }
+}
+@media(max-width: 767px){
+   .app-link-footer {
+       justify-content: left !important;
+   }
+   .section-heading-text,.large-title,.download-inner-content h2,
+   .sign-up-inner h2 {
+       font-size: 24px;
+   }
+   .feature-subhead, .sign-up-subhead{
+       font-size: 20px;
+   }
+   .banner-heading{
+       font-size: 28px;
+   }
+   .banner-para,.btn-primary-custom{
+       font-size: 16px;
+   }
+   .sign-up-inner{
+       padding: 30px 10px;
+   }
+   .signup-step-number{
+       width: 30px;
+       height: 30px;
+       font-size: 16px;
+   }
+
+   .footer-link-col h6, .footer-contact-col h6{
+       font-size: 17px;
+   }
+}
+@media(max-width: 540px){
+    .tmex-logo img {
+       width: 125px;
+   }
+  .sign-up-btn a{
+       padding: 8px 9px;
+       font-size: 11px;
+   }
+   .footer-contact-col p small {
+       font-size: 13px;
+   }
+   .progress-step span {
+       text-align: center;
+       font-size: 14px;
+   }
+}
