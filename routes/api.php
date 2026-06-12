@@ -143,6 +143,8 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
 
     // send notification for in app chat
     Route::post('send-notification', [ API\NotificationController::class, 'sendNotification']);
+    Route::get('notification-counts',[ API\NotificationController::class ,'notificationCounts']);
+
 
     // Stripe
     Route::post('/create-setup-intent', [API\StripeCardController::class, 'createSetupIntent']);

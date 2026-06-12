@@ -28,9 +28,51 @@
         }
 
         if($('.min-daterange-picker').length > 0){
-            flatpickr('.min-daterange-picker', {
-                minDate: 'today',
-                plugins: [new rangePlugin({ input: '#end_date' })],
+            $('.min-daterange-picker').each(function() {
+                var minDate = "today";
+
+                if ($(this).val() != '') {
+
+                    var fieldDate = new Date($(this).val());
+                    var today = new Date();
+
+                    // Remove time part
+                    fieldDate.setHours(0,0,0,0);
+                    today.setHours(0,0,0,0);
+
+                    // If field date is future/today use it
+                    // otherwise keep today
+                    if (fieldDate <= today) {
+                        minDate = $(this).val();
+                    }
+                }
+                flatpickr(this, {
+                    minDate: minDate,
+                    dateFormat: "Y-m-d",
+                    allowInput: true,
+                    clickOpens: true,
+
+                    plugins: [
+                        new rangePlugin({
+                            input: "#end_date"
+                        })
+                    ],
+
+                    onClose: function(selectedDates, dateStr, instance) {
+                        // If only the start date is selected when closing
+                        if (selectedDates.length === 1) {
+                            // Format the date to match your Y-m-d format
+                            var formattedDate = instance.formatDate(selectedDates[0], "Y-m-d");
+                            
+                            // Force the value into the start input and the flatpickr instance
+                            $thisInput.val(formattedDate);
+                            instance.setDate(selectedDates[0], false);
+                            
+                            // Clear the end date input just in case a partial selection left junk data
+                            $("#end_date").val('');
+                        }
+                    }
+                });
             });
         }
         

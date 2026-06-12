@@ -93,7 +93,7 @@
      }
 </script>
 @if(isset($assets) && in_array('map', $assets))
-    <script src="https://maps.googleapis.com/maps/api/js?key={{config('services.google_maps.key')}}&libraries=drawing" defer></script>
+    <script src="https://maps.googleapis.com/maps/api/js?key={{config('services.google_maps.key')}}&libraries=drawing&v=3.64" defer></script>
 @endif
 
 @if(isset($assets) && in_array('map_place', $assets))

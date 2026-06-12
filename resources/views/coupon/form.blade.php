@@ -77,12 +77,12 @@
 
                                 <div class="form-group col-md-4">
                                     {{ Form::label('start_date', __('message.start_date'), [ 'class' => 'form-control-label']) }}
-                                    {{ Form::text('start_date', old('start_date'),[ 'placeholder' => __('message.start_date'),'class' => 'form-control min-daterange-picker']) }}
+                                    {{ Form::text('start_date', old('start_date'),[ 'placeholder' => __('message.start_date'),'class' => 'form-control min-daterange-picker', 'autocomplete' => 'off']) }}
                                 </div>
 
                                 <div class="form-group col-md-4">
                                     {{ Form::label('end_date', __('message.end_date'), [ 'class' => 'form-control-label']) }}
-                                    {{ Form::text('end_date', old('end_date'),[ 'placeholder' => __('message.end_date'),'class' => 'form-control min-daterange-picker']) }}
+                                    {{ Form::text('end_date', old('end_date'),[ 'placeholder' => __('message.end_date'),'class' => 'form-control', 'autocomplete' => 'off']) }}
                                 </div>
 
                                 <div class="form-group col-md-4">

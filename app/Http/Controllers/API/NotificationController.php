@@ -45,6 +45,26 @@ class NotificationController extends Controller
         return json_custom_response($response);
     }
 
+    public function notificationCounts(Request $request)
+    {
+        $user = auth()->user();
+
+        $unread_count = 0;
+        $unread_total_count = 0;
+
+        if(isset($user->unreadNotifications)){
+            $unread_count = $user->unreadNotifications->where('created_at', '>', $user->last_notification_seen)->count() ;
+            $unread_total_count = $user->unreadNotifications->count();
+        }
+        $response = [
+            'status'            => true,
+            'counts'            => $unread_count,
+            'unread_total_count'=> $unread_total_count
+        ];
+
+        return json_custom_response($response);
+    }
+
     public function sendNotification(Request $request){
         $driver_id = $request->driver_id;
 
