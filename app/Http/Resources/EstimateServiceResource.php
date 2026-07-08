@@ -25,9 +25,8 @@ class EstimateServiceResource extends JsonResource
         $pick_lng = request('pick_lng');
         $drop_lat = request('drop_lat');
         $drop_lng = request('drop_lng');
-        $datetime = request('datetime') ?? date('Y-m-d H:i');
-        // dd($datetime);
         $multi_location = request('multi_location', []);
+        $datetime = request('datetime') ?? date('Y-m-d H:i');
         // get timezone
         $timezone = optional($this->region)->timezone ?? 'UTC';
         $date_time = \Carbon\Carbon::parse($datetime, $timezone)->setTimezone($timezone)->format('Y-m-d H:i');

@@ -117,6 +117,7 @@
                     // Convert it to a public path
                     $relativePath = parse_url($logoUrl, PHP_URL_PATH) ?? '';
                     $logoPath = public_path($relativePath);              
+                    $extra_charges_texts = [];
 
                     // Convert to base64
                     $logoType = pathinfo($logoPath, PATHINFO_EXTENSION);
