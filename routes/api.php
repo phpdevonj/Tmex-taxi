@@ -144,6 +144,10 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
     // send notification for in app chat
     Route::post('send-notification', [ API\NotificationController::class, 'sendNotification']);
     Route::get('notification-counts',[ API\NotificationController::class ,'notificationCounts']);
+    Route::patch('notifications/{id}/read',[ API\NotificationController::class ,'markAsRead']); // Mark a Single Notification as Read
+    Route::patch('notifications/read-all', [API\NotificationController::class, 'markAllAsRead']); // Mark All Notifications as Read
+    Route::patch('notifications/{id}/delete', [API\NotificationController::class, 'deleteNotification']); // Delete a Single Notification
+
 
 
     // Stripe

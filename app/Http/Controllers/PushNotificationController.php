@@ -6,6 +6,8 @@ use Illuminate\Http\Request;
 use App\Models\PushNotification;
 use App\DataTables\PushNotificationDataTable;
 use App\Models\User;
+use App\Models\Service;
+use App\Models\Region;
 use App\Notifications\CommonNotification;
 use App\Notifications\RideNotification;
 use App\Models\Notification;
@@ -37,9 +39,66 @@ class PushNotificationController extends Controller
         $relation = [
             'rider' => User::where('user_type','rider')->where('status','active')->get()->pluck('display_name', 'id'),
             'driver' => User::where('user_type','driver')->where('status','active')->get()->pluck('display_name', 'id'),
+            'service' => Service::where('status',1)->pluck('name', 'id'),
+            'region' => Region::where('status',1)->pluck('name', 'id'),
         ];
-        
+
         return view('push_notification.form', compact('pageTitle')+$relation);
+    }
+
+    /**
+     * Return matching riders/drivers for a chosen Service or Region as JSON.
+     * Used by the push notification form to pre-select recipients.
+     *
+     * Service  -> drivers only (matched by their service_id).
+     * Region   -> both riders and drivers, matched by their stored
+     *             latitude/longitude falling inside the region polygon.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function getUsers(Request $request)
+    {
+        $riders = collect();
+        $drivers = collect();
+
+        if ($request->filled('service_id')) {
+            $drivers = User::where('user_type', 'driver')
+                ->where('status', 'active')
+                ->where('service_id', $request->service_id)
+                ->get(['id', 'display_name']);
+        } elseif ($request->filled('region_id')) {
+            $regionId = $request->region_id;
+
+            // Restrict to users whose coordinates fall inside the region polygon.
+            // The stored polygon uses (longitude latitude) axis order (Grimzy spatial),
+            // so the tested point must be built in the same order.
+            $inRegion = function ($query) use ($regionId) {
+                $query->whereNotNull('latitude')
+                    ->whereNotNull('longitude')
+                    ->where('latitude', '!=', '')
+                    ->where('longitude', '!=', '')
+                    ->whereRaw(
+                        "ST_Contains((SELECT coordinates FROM regions WHERE id = ?), ST_GeomFromText(CONCAT('POINT(', longitude, ' ', latitude, ')')))",
+                        [$regionId]
+                    );
+            };
+
+            $riders = User::where('user_type', 'rider')
+                ->where('status', 'active')
+                ->where($inRegion)
+                ->get(['id', 'display_name']);
+
+            $drivers = User::where('user_type', 'driver')
+                ->where('status', 'active')
+                ->where($inRegion)
+                ->get(['id', 'display_name']);
+        }
+
+        return response()->json([
+            'riders'  => $riders->map(fn ($user) => ['id' => $user->id, 'text' => $user->display_name])->values(),
+            'drivers' => $drivers->map(fn ($user) => ['id' => $user->id, 'text' => $user->display_name])->values(),
+        ]);
     }
 
     /**

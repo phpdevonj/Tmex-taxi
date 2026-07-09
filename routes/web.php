@@ -155,6 +155,7 @@ Route::group(['middleware' => ['auth', 'verified', 'admin', 'check.route.permiss
 
     Route::post('save-wallet-fund/{user_id}', [ HomeController::class, 'saveWalletHistory'] )->name('savewallet.fund');
 
+    Route::get('pushnotification/get-users', [PushNotificationController::class, 'getUsers'])->name('pushnotification.getusers');
     Route::resource('pushnotification', PushNotificationController::class);
 
     Route::resource('dispatch', DispatchController::class)->except(['index', 'edit']);

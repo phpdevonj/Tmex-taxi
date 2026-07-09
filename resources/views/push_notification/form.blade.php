@@ -21,6 +21,24 @@
                     <div class="card-body">
                         <div class="new-user-info">
                             <div class="row">
+                                <div class="form-group col-md-12">
+                                    <p class="text-muted mb-2"><i class="fa fa-filter"></i> {{ __('message.filter_recipients_note') }}</p>
+                                </div>
+
+                                <div class="form-group col-md-6">
+                                    {{ Form::label('service_filter', __('message.service'),['class' => 'form-control-label' ], false ) }}
+                                    {{ Form::select('service_filter', $service , null , [ 'data-placeholder' => __('message.select_name',[ 'select' => __('message.service') ]), 'id' => 'service_filter', 'class' => 'select2js form-control', 'data-allow-clear' => 'true', 'placeholder' => __('message.select_name',[ 'select' => __('message.service') ])] ) }}
+                                    <small class="text-muted">{{ __('message.filter_service_note') }}</small>
+                                </div>
+
+                                <div class="form-group col-md-6">
+                                    {{ Form::label('region_filter', __('message.region'),['class' => 'form-control-label' ], false ) }}
+                                    {{ Form::select('region_filter', $region , null , [ 'data-placeholder' => __('message.select_name',[ 'select' => __('message.region') ]), 'id' => 'region_filter', 'class' => 'select2js form-control', 'data-allow-clear' => 'true', 'placeholder' => __('message.select_name',[ 'select' => __('message.region') ])] ) }}
+                                    <small class="text-muted">{{ __('message.filter_region_note') }}</small>
+                                </div>
+
+                                <div class="col-md-12"><hr class="mt-1 mb-3"></div>
+
                                 <div class="form-group col-md-4">
                                     {{ Form::label('rider', __('message.rider').' <span class="text-danger">*</span>',['class' => 'form-control-label' ], false ) }}
                                     {{ Form::select('rider[]', $rider , old('rider') , [ 'data-placeholder' => __('message.select_name',[ 'select' => __('message.rider') ]), 'id' => 'rider_list', 'class' => 'select2js form-control', 'multiple' => 'multiple'] ) }}
@@ -103,6 +121,42 @@
                     return "<li class='ml-2'>" + count + " " + usertype.charAt(0).toUpperCase() + usertype.slice(1) + " Selected</li>";
                 });
             }
+
+            // Select the given ids in a recipient dropdown (options already exist).
+            function selectRecipients(usertype, ids) {
+                $('#' + usertype + '_list').val(ids).trigger('change');
+                updateCounter(usertype);
+            }
+
+            // Fetch matching riders/drivers for the chosen Service/Region and
+            // pre-select them in the recipient dropdowns.
+            function applyRecipientFilter(params) {
+                $('#submit-btn').prop('disabled', true);
+                $.get("{{ route('pushnotification.getusers') }}", params, function(res) {
+                    selectRecipients('driver', (res.drivers || []).map(function(u) { return String(u.id); }));
+                    selectRecipients('rider', (res.riders || []).map(function(u) { return String(u.id); }));
+                    // Keep the "select all" checkboxes in sync with the filtered result.
+                    $('#all_rider, #all_driver').prop('checked', false);
+                }).always(function() {
+                    $('#submit-btn').prop('disabled', false);
+                });
+            }
+
+            // Service filter -> drivers only. Clears the region filter.
+            $(document).on('change', '#service_filter', function() {
+                var serviceId = $(this).val();
+                if (!serviceId) { return; }
+                $('#region_filter').val(null).trigger('change.select2');
+                applyRecipientFilter({ service_id: serviceId });
+            });
+
+            // Region filter -> riders and drivers. Clears the service filter.
+            $(document).on('change', '#region_filter', function() {
+                var regionId = $(this).val();
+                if (!regionId) { return; }
+                $('#service_filter').val(null).trigger('change.select2');
+                applyRecipientFilter({ region_id: regionId });
+            });
         });
     </script>
     @endsection

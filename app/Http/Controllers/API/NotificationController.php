@@ -65,6 +65,42 @@ class NotificationController extends Controller
         return json_custom_response($response);
     }
 
+    public function markAsRead($id)
+    {
+        $notification = Notification::where('id', $id)->where('notifiable_id', auth()->id())->first();
+
+        if (!$notification) {
+            return json_message_response('Notification not found',400);
+        }
+
+        $notification->update(['read_at' => now()]);
+
+        $response = [
+            'status'  => true,
+            'message' => 'Notification marked as read.'
+        ];
+
+        return json_custom_response($response);
+    }
+
+    public function markAllAsRead()
+    {
+        $user = auth()->user();
+
+        if(isset($user->unreadNotifications)){
+            $user->unreadNotifications->markAsRead();
+
+            $response = [
+                'status'  => true,
+                'message' => 'All notifications marked as read.'
+            ];
+    
+            return json_custom_response($response);
+        }else{
+            return json_message_response('No unread notifications found',400);
+        }        
+    }
+
     public function sendNotification(Request $request){
         $driver_id = $request->driver_id;
 
@@ -88,6 +124,24 @@ class NotificationController extends Controller
         $response = [
             'status'  => true,
             'message' => 'Notification sent successfully'
+        ];
+
+        return json_custom_response($response);
+    }
+
+    public function deleteNotification($id)
+    {
+        $notification = Notification::where('id', $id)->where('notifiable_id', auth()->id())->first();
+
+        if (!$notification) {
+            return json_message_response('Notification not found',400);
+        }
+
+        $notification->delete();
+
+        $response = [
+            'status'  => true,
+            'message' => 'Notification deleted successfully.'
         ];
 
         return json_custom_response($response);
