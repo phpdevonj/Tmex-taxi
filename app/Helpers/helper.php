@@ -1191,19 +1191,8 @@ function calculateRideFares($distance_in_unit, $pickupLat, $pickupLng, $dropLat,
 
     $duration = $dropoff_time_in_seconds / 60;
 
-    // Time Fare
-    if ($duration <= $distance_in_unit) {
-        // Short duration ride
-        $time_price = $duration * $service['time_fare_short_ride'];
-    } elseif ($duration > $distance_in_unit && $duration <= 2 * $distance_in_unit) {
-        // Moderate duration ride
-        $time_price = $duration * $service['time_fare_moderate_ride'];
-    } elseif ($duration > 2 * $distance_in_unit) {
-        // Long duration / heavy traffic
-        $time_price = $duration * $service['time_fare_long_ride'];
-    } else {
-        $time_price = 0;
-    }
+    $time_price = ($dropoff_time_in_seconds / 60) * $service['per_minute_drive'];
+
     
     if ($distance_in_unit > $minimum_distance) {
         $distance_in_unit -= $minimum_distance;
@@ -1217,16 +1206,6 @@ function calculateRideFares($distance_in_unit, $pickupLat, $pickupLng, $dropLat,
 
     $base_and_distance_price = ($base_fare + $distance_price);
     $total_amount = $base_and_distance_price + $time_price; // Total ride fare. We are not including time idling in the fare calculation, as it depends on the waiting time. For estimation purposes, the time idling fare is not considered.
-
-    // Company fee applicable on total ride fare
-    if($total_amount < $service['company_fee_threshold']){
-        $company_fee = $service['company_fee_below_threshold'];
-    }else{
-        $company_fee = $service['company_fee_above_threshold'];
-    }
-
-    $total_amount += $company_fee; // Normal Ride Fare
-
     // Expenses
     $expenses = $total_amount * $service['expenses']/100;
 
@@ -1237,6 +1216,18 @@ function calculateRideFares($distance_in_unit, $pickupLat, $pickupLng, $dropLat,
         $total_amount = $service['minimum_fare'];
     }
 
+       if ($service['commission_type'] == 'fixed') {
+        $commission = $service['admin_commission'] + $service['fleet_commission'];
+        if ($total_amount <= $commission) {
+            $total_amount += $commission;
+        }
+    }elseif($service['commission_type'] == 'percentage'){
+        $commission = ($total_amount * $service['admin_commission']/100) + $service['fleet_commission'];
+        if ($total_amount <= $commission) {
+            $total_amount += $commission;
+        }
+    }
+
     // if ($service['commission_type'] == 'fixed') {
     //     $commission = $service['admin_commission'] + $service['fleet_commission'];
     //     if ($total_amount <= $commission) {
@@ -1245,7 +1236,8 @@ function calculateRideFares($distance_in_unit, $pickupLat, $pickupLng, $dropLat,
     // }
 
     $discount_amount = 0;
-    $subtotal = $total_amount;
+    $subtotal = $base_and_distance_price + $time_price;
+
 
     if ($coupon) {
         $coupon = is_array($coupon) ? (object)$coupon : $coupon;
@@ -1266,25 +1258,6 @@ function calculateRideFares($distance_in_unit, $pickupLat, $pickupLng, $dropLat,
                     'message' => 'Minimum fare ₹'.$coupon->minimum_amount.' required.',
                 ];
                 throw new \Illuminate\Http\Exceptions\HttpResponseException(json_custom_response($response, 400));
-            }
-        }
-    }
-
-    // use wallet balance for ride booking
-    if($is_credit_used){
-        $user_wallet = Wallet::where([ 'user_id' => $rider_id ])->first();
-        if($user_wallet && $user_wallet->total_amount > 0){ 
-            $subtotal = $total_amount;    
-            if ($user_wallet->total_amount >= $subtotal) {
-                // Wallet has enough to cover the subtotal
-                $credit_used = $subtotal;
-                $available_wallet_amount = $user_wallet->total_amount - $credit_used;
-                $subtotal = 0; // Fully covered by wallet
-            } else {
-                // Wallet doesn't have enough, use all wallet balance
-                $credit_used = $user_wallet->total_amount;
-                $available_wallet_amount = 0;
-                $subtotal = $subtotal - $credit_used;
             }
         }
     }
@@ -1321,7 +1294,7 @@ function calculateRideFares($distance_in_unit, $pickupLat, $pickupLng, $dropLat,
     }
 
     $final_subtotal = $subtotal + ($surge_amount ? $surge_amount : 0);
-    $driver_earning = $total_amount - $company_fee - $expenses;
+    $driver_earning = $final_subtotal - $commission;
 
     return [
         'distance' => round($distance_in_unit, 2),
@@ -1332,10 +1305,6 @@ function calculateRideFares($distance_in_unit, $pickupLat, $pickupLng, $dropLat,
         'subtotal' => (float) number_format( (float) $final_subtotal, 2,'.',''), // total amount - coupon discount
         'discount_amount' => $discount_amount,
         'fixed_charge' => (float) number_format( (float) $surge_amount, 2,'.',''),
-        'credit_used' => $credit_used ?? 0,
-        'available_wallet_amount' => $available_wallet_amount ?? 0,
-        'company_fee_charge' => (float) number_format( (float) $company_fee, 2,'.',''),
-        'expenses_charge' => (float) number_format( (float) $expenses, 2,'.',''),
         'driver_earning' => (float) number_format( (float) $driver_earning, 2,'.',''),
     ];
 }
