@@ -1155,38 +1155,55 @@ function first_element_in_distance_matrix($distance_matrix)
     return $row['elements'][0];
 }
 
-function calculateRideFares($distance_in_unit, $pickupLat, $pickupLng, $dropLat, $dropLng, $multiLocation, $dropoff_time_in_seconds, $service, $coupon = null, $surge_price = null,$ride_datetime = null) {
+function calculateRideFares($distance_in_unit, $pickupLat, $pickupLng, $dropLat, $dropLng, $multiLocation, $dropoff_time_in_seconds, $service, $coupon = null, $surge_price = null,$ride_datetime = null,$is_credit_used=false, $rider_id=null) {
     $time_price = 0;
     
     $distance_unit = $service['distance_unit'] ?? 'km';
     $minimum_distance = $service['minimum_distance'] ?? 0;
     
     if ($distance_unit == 'mile') {
-        $distance_in_unit = km_to_mile($distance_in_unit);
+        $distance_in_unit = km_to_mile($distance_in_unit); // convert km distance to miles
     }
 
-    $previousLat = $pickupLat;
-    $previousLng = $pickupLng;
+    // We are using google map api to calculate distance
+    // $previousLat = $pickupLat;
+    // $previousLng = $pickupLng;
 
-    foreach ($multiLocation as $location) {
-        $currentLat = $location['lat'];
-        $currentLng = $location['lng'];
-        $distance = haversineDistance($previousLat, $previousLng, $currentLat, $currentLng);        
-        $distance_in_unit += $distance;
-        $previousLat = $currentLat;
-        $previousLng = $currentLng;
-    }
+    // foreach ($multiLocation as $location) {
+    //     $currentLat = $location['lat'];
+    //     $currentLng = $location['lng'];
+    //     $distance = haversineDistance($previousLat, $previousLng, $currentLat, $currentLng);        
+    //     $distance_in_unit += $distance;
+    //     $previousLat = $currentLat;
+    //     $previousLng = $currentLng;
+    // }
 
-    $finalDistance = 0; //haversineDistance($previousLat, $previousLng, $dropLat, $dropLng);
+    // $finalDistance = haversineDistance($previousLat, $previousLng, $dropLat, $dropLng);
     
-    $distance_in_unit += $finalDistance;
+    // $distance_in_unit += $finalDistance;
 
-    if ($distance_unit == 'mile') {
-        $distance_in_unit = km_to_mile($distance_in_unit);
-    }
+    // if ($distance_unit == 'mile') {
+    //     $distance_in_unit = km_to_mile($distance_in_unit);
+    // }
 
     $base_fare = $service['base_fare'];
-    $time_price = ($dropoff_time_in_seconds / 60) * $service['per_minute_drive'];
+    //$time_price = ($dropoff_time_in_seconds / 60) * $service['per_minute_drive'];
+
+    $duration = $dropoff_time_in_seconds / 60;
+
+    // Time Fare
+    if ($duration <= $distance_in_unit) {
+        // Short duration ride
+        $time_price = $duration * $service['time_fare_short_ride'];
+    } elseif ($duration > $distance_in_unit && $duration <= 2 * $distance_in_unit) {
+        // Moderate duration ride
+        $time_price = $duration * $service['time_fare_moderate_ride'];
+    } elseif ($duration > 2 * $distance_in_unit) {
+        // Long duration / heavy traffic
+        $time_price = $duration * $service['time_fare_long_ride'];
+    } else {
+        $time_price = 0;
+    }
     
     if ($distance_in_unit > $minimum_distance) {
         $distance_in_unit -= $minimum_distance;
@@ -1196,29 +1213,39 @@ function calculateRideFares($distance_in_unit, $pickupLat, $pickupLng, $dropLat,
         $distance_in_unit = 0;
     }
 
-    $distance_price = ($distance_in_unit * $service['per_distance']);
+    $distance_price = ($distance_in_unit * $service['per_distance']); // Distance Fare    
 
     $base_and_distance_price = ($base_fare + $distance_price);
-    $total_amount = $base_and_distance_price + $time_price;
+    $total_amount = $base_and_distance_price + $time_price; // Total ride fare. We are not including time idling in the fare calculation, as it depends on the waiting time. For estimation purposes, the time idling fare is not considered.
+
+    // Company fee applicable on total ride fare
+    if($total_amount < $service['company_fee_threshold']){
+        $company_fee = $service['company_fee_below_threshold'];
+    }else{
+        $company_fee = $service['company_fee_above_threshold'];
+    }
+
+    $total_amount += $company_fee; // Normal Ride Fare
+
+    // Expenses
+    $expenses = $total_amount * $service['expenses']/100;
+
+    // Total Ride Fee (what rider pays)
+    $total_amount += $expenses;
 
     if ($total_amount < $service['minimum_fare']) {
         $total_amount = $service['minimum_fare'];
     }
 
-   if ($service['commission_type'] == 'fixed') {
-        $commission = $service['admin_commission'] + $service['fleet_commission'];
-        if ($total_amount <= $commission) {
-            $total_amount += $commission;
-        }
-    }elseif($service['commission_type'] == 'percentage'){
-        $commission = ($total_amount * $service['admin_commission']/100) + $service['fleet_commission'];
-        if ($total_amount <= $commission) {
-            $total_amount += $commission;
-        }
-    }
+    // if ($service['commission_type'] == 'fixed') {
+    //     $commission = $service['admin_commission'] + $service['fleet_commission'];
+    //     if ($total_amount <= $commission) {
+    //         $total_amount += $commission;
+    //     }
+    // }
 
     $discount_amount = 0;
-    $subtotal = $base_and_distance_price + $time_price;
+    $subtotal = $total_amount;
 
     if ($coupon) {
         $coupon = is_array($coupon) ? (object)$coupon : $coupon;
@@ -1243,6 +1270,25 @@ function calculateRideFares($distance_in_unit, $pickupLat, $pickupLng, $dropLat,
         }
     }
 
+    // use wallet balance for ride booking
+    if($is_credit_used){
+        $user_wallet = Wallet::where([ 'user_id' => $rider_id ])->first();
+        if($user_wallet && $user_wallet->total_amount > 0){ 
+            $subtotal = $total_amount;    
+            if ($user_wallet->total_amount >= $subtotal) {
+                // Wallet has enough to cover the subtotal
+                $credit_used = $subtotal;
+                $available_wallet_amount = $user_wallet->total_amount - $credit_used;
+                $subtotal = 0; // Fully covered by wallet
+            } else {
+                // Wallet doesn't have enough, use all wallet balance
+                $credit_used = $user_wallet->total_amount;
+                $available_wallet_amount = 0;
+                $subtotal = $subtotal - $credit_used;
+            }
+        }
+    }
+
     $surge_amount = 0;
     $surge_price_setting_value = SettingData('ride', 'surge_price') ?? null;
     if ($surge_price_setting_value == 1 && isset($surge_price) && (is_object($surge_price) || is_array($surge_price))) {
@@ -1251,7 +1297,7 @@ function calculateRideFares($distance_in_unit, $pickupLat, $pickupLng, $dropLat,
         $rideTimeOnly = \Carbon\Carbon::parse($ride_datetime, $timezone)->format('H:i');
         foreach ($surge_price->from_time as $index => $from_time) {
             $to_time = $surge_price->to_time[$index];
-            
+    
             // Handle normal & overnight surge windows
             if ($from_time <= $to_time) {
                 // Same-day surge (e.g. 13:00 - 23:59)
@@ -1267,6 +1313,7 @@ function calculateRideFares($distance_in_unit, $pickupLat, $pickupLng, $dropLat,
                 } elseif ($surge_price->type === 'percentage') {
                     $surge_amount = ($subtotal * $surge_price->value) / 100;
                 }
+    
                 $total_amount += $surge_amount;
                 break;
             }
@@ -1274,16 +1321,21 @@ function calculateRideFares($distance_in_unit, $pickupLat, $pickupLng, $dropLat,
     }
 
     $final_subtotal = $subtotal + ($surge_amount ? $surge_amount : 0);
-    $driver_earning = $final_subtotal - $commission;
+    $driver_earning = $total_amount - $company_fee - $expenses;
+
     return [
         'distance' => round($distance_in_unit, 2),
         'minimum_distance_in_km' => $minimum_distance,
         'distance_price' => (float) number_format( (float) $distance_price, 2,'.',''),
         'time_price' => (float) number_format( (float) $time_price, 2,'.',''),
         'total_amount' => (float) number_format( (float) $total_amount, 2,'.',''),
-        'subtotal' => (float) number_format( (float) $final_subtotal, 2,'.',''),
+        'subtotal' => (float) number_format( (float) $final_subtotal, 2,'.',''), // total amount - coupon discount
         'discount_amount' => $discount_amount,
         'fixed_charge' => (float) number_format( (float) $surge_amount, 2,'.',''),
+        'credit_used' => $credit_used ?? 0,
+        'available_wallet_amount' => $available_wallet_amount ?? 0,
+        'company_fee_charge' => (float) number_format( (float) $company_fee, 2,'.',''),
+        'expenses_charge' => (float) number_format( (float) $expenses, 2,'.',''),
         'driver_earning' => (float) number_format( (float) $driver_earning, 2,'.',''),
     ];
 }
