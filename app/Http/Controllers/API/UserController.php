@@ -156,6 +156,11 @@ class UserController extends Controller
                  
             $user = User::create($input);
             $user->assignRole($input['user_type']);
+
+            // Store SSN (encrypted) + masked last-four; status starts as pending review.
+            if (!empty($request->ssn)) {
+                $this->storeSsn($user, $request->ssn);
+            }
             if (!empty($request->profile_image)) {
                 $base64Str = $request->profile_image;
             
@@ -716,7 +721,12 @@ class UserController extends Controller
         }
 
         $user_data = User::find($user->id);
-        
+
+        // Update SSN if provided; changing it resets status to pending re-review.
+        if ($request->has('ssn') && !empty($request->ssn)) {
+            $this->storeSsn($user_data, $request->ssn);
+        }
+
         if($user_data->userDetail != null && $request->has('user_detail') ) {
             $user_data->userDetail->fill($request->user_detail)->update();
         } else if( $request->has('user_detail') && $request->user_detail != null ) {
@@ -891,6 +901,11 @@ class UserController extends Controller
                     $user->userWallet()->create(['total_amount' => 0 ]);
                 }
                 $user->assignRole($input['user_type']);
+
+                // Store SSN (encrypted) + masked last-four when a driver registers via social login.
+                if ($user->user_type == 'driver' && !empty($request->ssn)) {
+                    $this->storeSsn($user, $request->ssn);
+                }
     
                 $user_data = User::where('id',$user->id)->first();
                 $message = __('message.save_form',['form' => $input['user_type'] ]);
@@ -1079,6 +1094,17 @@ class UserController extends Controller
                     ];
                     return json_custom_response($response,400);
                 }
+                // SSN approval is mandatory before a driver can go online / accept rides.
+                if ($user->ssn_status !== 'approved') {
+                    $response = [
+                        'data' => [
+                            'status' => false,
+                            'step' => 'ssn'
+                        ],
+                        'message' => __('message.ssn_pending'),
+                    ];
+                    return json_custom_response($response,400);
+                }
             }
             $user->is_online = $request->is_online;
         }
@@ -1204,5 +1230,17 @@ class UserController extends Controller
     public function validateDriverStepOne(DriverStepOneRequest $request)
     {
         return json_custom_response(['status' => true]);
+    }
+
+    /**
+     * Store a driver's SSN: full value encrypted (via model cast), a plain
+     * last-four for masked display, and status reset to pending review.
+     */
+    private function storeSsn($user, $ssn)
+    {
+        $user->ssn = $ssn;
+        $user->ssn_last_four = substr(preg_replace('/\D/', '', $ssn), -4);
+        $user->ssn_status = 'pending';
+        $user->save();
     }
 }

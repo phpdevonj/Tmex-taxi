@@ -44,6 +44,7 @@ return [
     'ride' => [
         'max_time_for_find_drivers_for_regular_ride_in_minute'  => '',
         'ride_accept_decline_duration_for_driver_in_second'     => '',
+        'max_stops_limit'   => '',
         // 'schedule_ride_after_minute'    => '',
         // 'min_time_for_find_driver_for_schedule_ride_in_minute'  => '',
         'preset_tip_amount'   => '',

@@ -41,6 +41,8 @@ class DriverRequest extends FormRequest
 
             if (request()->isMethod('post')) {
                 $rules['password'] = 'required|min:8';
+                // SSN is mandatory at driver registration (dashes optional).
+                $rules['ssn'] = ['required', 'string', 'regex:/^\d{3}-?\d{2}-?\d{4}$/'];
             } else {
                 $rules['password'] = 'nullable|min:8';
             }

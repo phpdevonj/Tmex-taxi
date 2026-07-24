@@ -277,8 +277,35 @@ class DriverController extends Controller
             }
         }
 
+        // Capture current SSN status before mass-assign (ssn_status is not fillable).
+        $oldSsnStatus = $user->ssn_status;
+
         // User user data...
         $user->fill($request->all())->update();
+
+        // Admin can view/update the full SSN number (not mass-assignable, so set explicitly).
+        // Updating the number re-computes the masked last-four shown in the app/API.
+        if ($request->filled('ssn') && $request->ssn !== $user->ssn) {
+            $user->ssn = $request->ssn;
+            $user->ssn_last_four = substr(preg_replace('/\D/', '', $request->ssn), -4);
+            $user->save();
+        }
+
+        // Handle SSN review status change + notify the driver.
+        if ($request->has('ssn_status') && $request->ssn_status !== $oldSsnStatus) {
+            $user->ssn_status = $request->ssn_status;
+            $user->save();
+
+            $type = 'ssn_' . $request->ssn_status; // ssn_pending / ssn_approved / ssn_rejected
+            $notification_data = [
+                'id'      => $user->id,
+                'type'    => $type,
+                'subject' => __('message.' . $type),
+                'message' => __('message.' . $type),
+            ];
+            $user->notify(new \App\Notifications\RideNotification($notification_data));       // in-app DB record
+            $user->notify(new \App\Notifications\CommonNotification($type, $notification_data)); // FCM push
+        }
 
         // Save user image...
         if (isset($request->profile_image) && $request->profile_image != null) {

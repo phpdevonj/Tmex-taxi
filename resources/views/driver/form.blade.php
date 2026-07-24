@@ -72,6 +72,29 @@
                         </div>
                     </div>
                 </div>
+                @if(isset($id))
+                <div class="card border-radius-20 mt-3">
+                    <div class="card-header d-flex justify-content-between" style="border-top-left-radius: 20px; border-top-right-radius: 20px;">
+                        <div class="header-title">
+                            <h4 class="card-title">{{ __('message.ssn_status') }}</h4>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div class="form-group">
+                            {{ Form::label('ssn', __('message.ssn_number'), ['class' => 'form-label']) }}
+                            {{ Form::text('ssn', old('ssn', $data->ssn ?? null), ['class' => 'form-control', 'placeholder' => __('message.not_submitted')]) }}
+                        </div>
+                        <div class="form-group">
+                            {{ Form::label('ssn_status', __('message.ssn_status'), ['class' => 'form-label']) }}
+                            {{ Form::select('ssn_status', [
+                                'pending'  => __('message.pending'),
+                                'approved' => __('message.approved'),
+                                'rejected' => __('message.rejected'),
+                            ], old('ssn_status', $data->ssn_status ?? 'pending'), ['class' => 'form-control select2js']) }}
+                        </div>
+                    </div>
+                </div>
+                @endif
             </div>
             <div class="col-xl-9 col-lg-8 mt-3">
                 <div class="card border-radius-20">

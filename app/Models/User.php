@@ -33,6 +33,7 @@ class User extends Authenticatable implements HasMedia
     protected $hidden = [
         'password',
         'remember_token',
+        'ssn',
     ];
 
     /**
@@ -49,7 +50,15 @@ class User extends Authenticatable implements HasMedia
         'is_online'         => 'integer',
         'last_location_update_at'   => 'datetime',
         'otp_verify_at'     => 'datetime',
+        'ssn'               => 'encrypted',
     ];
+
+    /**
+     * Masked SSN for safe display to driver/admin, e.g. "*--1234".
+     */
+    public function getMaskedSsnAttribute() {
+        return $this->ssn_last_four ? '*--' . $this->ssn_last_four : null;
+    }
 
     public function userDetail() {
         return $this->hasOne(UserDetail::class, 'user_id', 'id');
