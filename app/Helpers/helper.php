@@ -1206,12 +1206,7 @@ function calculateRideFares($distance_in_unit, $pickupLat, $pickupLng, $dropLat,
 
     $base_and_distance_price = ($base_fare + $distance_price);
     $total_amount = $base_and_distance_price + $time_price; // Total ride fare. We are not including time idling in the fare calculation, as it depends on the waiting time. For estimation purposes, the time idling fare is not considered.
-    // Expenses
-    $expenses = $total_amount * $service['expenses']/100;
-
-    // Total Ride Fee (what rider pays)
-    $total_amount += $expenses;
-
+  
     if ($total_amount < $service['minimum_fare']) {
         $total_amount = $service['minimum_fare'];
     }
