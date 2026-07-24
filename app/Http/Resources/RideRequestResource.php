@@ -22,6 +22,12 @@ class RideRequestResource extends JsonResource
 
         $getBidAmount = $this->approvedBids()->first();
 
+        // Admin commission comes from the ride's service; driver earning is the
+        // ride total minus the company fee (admin commission). expenses_charge is
+        // currently not tracked, so it is treated as 0.
+        $admin_commission = (float) (optional($this->service)->admin_commission ?? 0);
+        $driver_earning = (float) $this->total_amount - $admin_commission;
+
         $driver_ratings = optional($this->driver)->driverRating ?? collect();
         $rider_ratings = optional($this->rider)->riderRating ?? collect();
 
@@ -45,6 +51,8 @@ class RideRequestResource extends JsonResource
             'ride_attempt'      => $this->ride_attempt,
             'otp'               => $this->otp,
             'total_amount'      => $this->total_amount,
+            'admin_commission'  => $admin_commission,
+            'driver_earning'    => $driver_earning,
             'subtotal'          => (!empty($getBidAmount) && $this->ride_has_bid == 1) ? $getBidAmount->bid_amount : $this->subtotal,
             'extra_charges_amount'  => $this->extra_charges_amount,
             'driver_id'         => $this->driver_id,
@@ -114,6 +122,7 @@ class RideRequestResource extends JsonResource
             'held_payment_intent_id'     => $this->held_payment_intent_id,
             'held_payment_amount'        => $this->held_payment_amount,
             'captured_payment_intent_id' => $this->captured_payment_intent_id,
+            
         ];
     }
 }

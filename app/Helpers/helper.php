@@ -1608,17 +1608,68 @@ function stringLong($str = '', $type = 'title', $length = 0) //Add … if string
     }
 }
 
+// function og_get_distance_matrix_multiple_destination($pick_lat, $pick_lng, $drop_lat, $drop_lng, $drop_latlng, $traffic = false)
+// {
+//     $distance = 0;
+//     $duration = 0;
+//     for ($i = 0; $i <= count($drop_latlng); $i++)
+//     {
+//         if( $i == 0 ) {
+//             $response = og_get_distance_matrix($pick_lat, $pick_lng, $drop_latlng[$i]['latitude'], $drop_latlng[$i]['longitude']);
+//             $distance += distance_value_from_distance_matrix($response);
+//             $duration += duration_value_from_distance_matrix($response);
+//         } elseif( count($drop_latlng) == $i ) {
+//             $response = og_get_distance_matrix($drop_latlng[$i-1]['latitude'], $drop_latlng[$i-1]['longitude'], $drop_lat, $drop_lng);
+//             $distance += distance_value_from_distance_matrix($response);
+//             $duration += duration_value_from_distance_matrix($response);
+//         }else {
+//             $response = og_get_distance_matrix($drop_latlng[$i-1]['latitude'], $drop_latlng[$i-1]['longitude'], $drop_latlng[$i]['latitude'], $drop_latlng[$i]['longitude']);
+//             $distance += distance_value_from_distance_matrix($response);
+//             $duration += duration_value_from_distance_matrix($response);
+//         }
+//     }
+
+//     return [
+//         'duration' => $duration,
+//         'distance' => $distance,
+//     ];
+// }
 function og_get_distance_matrix_multiple_destination($pick_lat, $pick_lng, $drop_lat, $drop_lng, $drop_latlng, $traffic = false)
 {
+    if (is_string($drop_latlng)) {
+        $drop_latlng = json_decode($drop_latlng, true);
+    }
+    if (!is_array($drop_latlng)) {
+        $drop_latlng = [];
+    }
+
+    $drop_latlng = array_map(function($item) {
+        if (is_array($item)) {
+            $item['latitude'] = $item['latitude'] ?? $item['lat'] ?? null;
+            $item['longitude'] = $item['longitude'] ?? $item['lng'] ?? null;
+        }
+        return $item;
+    }, $drop_latlng);
+
+    // If there are no multi drop locations, fallback to simple pick to drop
+    if (empty($drop_latlng)) {
+        $response = og_get_distance_matrix($pick_lat, $pick_lng, $drop_lat, $drop_lng);
+        return [
+            'duration' => duration_value_from_distance_matrix($response) ?? 0,
+            'distance' => distance_value_from_distance_matrix($response) ?? 0,
+        ];
+    }
+
     $distance = 0;
     $duration = 0;
-    for ($i = 0; $i <= count($drop_latlng); $i++)
+    $count = count($drop_latlng);
+    for ($i = 0; $i <= $count; $i++)
     {
         if( $i == 0 ) {
             $response = og_get_distance_matrix($pick_lat, $pick_lng, $drop_latlng[$i]['latitude'], $drop_latlng[$i]['longitude']);
             $distance += distance_value_from_distance_matrix($response);
             $duration += duration_value_from_distance_matrix($response);
-        } elseif( count($drop_latlng) == $i ) {
+        } elseif( $count == $i ) {
             $response = og_get_distance_matrix($drop_latlng[$i-1]['latitude'], $drop_latlng[$i-1]['longitude'], $drop_lat, $drop_lng);
             $distance += distance_value_from_distance_matrix($response);
             $duration += duration_value_from_distance_matrix($response);
@@ -1634,7 +1685,6 @@ function og_get_distance_matrix_multiple_destination($pick_lat, $pick_lng, $drop
         'distance' => $distance,
     ];
 }
-
 function maskSensitiveInfo($type, $info)
 {
     if ($type === 'email' && empty($info) or $type === 'contact_number' && empty($info)) {
