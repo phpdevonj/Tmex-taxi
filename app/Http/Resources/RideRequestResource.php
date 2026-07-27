@@ -50,7 +50,7 @@ class RideRequestResource extends JsonResource
             'is_schedule'       => $this->is_schedule,
             'ride_attempt'      => $this->ride_attempt,
             'otp'               => $this->otp,
-            'total_amount'      => $this->total_amount,
+            'total_amount'      => (float) number_format($this->total_amount, 2,'.',''),
             'admin_commission'  => $admin_commission,
             'driver_earning'    => $driver_earning,
             'subtotal'          => (!empty($getBidAmount) && $this->ride_has_bid == 1) ? $getBidAmount->bid_amount : $this->subtotal,
