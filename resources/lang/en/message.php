@@ -761,4 +761,5 @@ return array(
     'expired_document_drivers' => 'Expired Document Drivers',
     'with_expired_document' => 'With expired Docs',
     'document_expiry_reminder' => 'Document Expiry Reminder',
+    'assign_driver'=>'Assign Driver',
 );
