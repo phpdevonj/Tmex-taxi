@@ -38,6 +38,7 @@ class Kernel extends ConsoleKernel
         $schedule->command('notify:drivers-subscription-end')->daily();
          // Run once daily, checks inside command for daily/weekly/monthly
         $schedule->command('payouts:process')->dailyAt('02:00'); // 2 AM
+        $schedule->command('document:check-expiry')->daily();   
     }
 
     /**
