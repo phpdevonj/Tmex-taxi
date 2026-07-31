@@ -53,6 +53,19 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Admin Commission Debug Logging
+    |--------------------------------------------------------------------------
+    |
+    | When enabled, RideRequestResource writes how it resolved admin_commission
+    | (source, commission_type, service/payment values) to the "admin_commission"
+    | log channel. Off by default, since it logs on every serialized ride.
+    |
+    */
+
+    'log_admin_commission' => (bool) env('LOG_ADMIN_COMMISSION', false),
+
+    /*
+    |--------------------------------------------------------------------------
     | Application URL
     |--------------------------------------------------------------------------
     |

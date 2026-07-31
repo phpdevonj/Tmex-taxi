@@ -23,29 +23,52 @@ class RideRequestResource extends JsonResource
         $getBidAmount = $this->approvedBids()->first();
 
         // Admin commission is resolved the same way as the admin panel (see
-        // RideRequestController@show / riderequest.show blade): once the payment
-        // is settled, PaymentTrait has already stored the calculated commission on
-        // the payment, so that value wins. Until then it is derived from the
-        // service, honouring its commission_type (fixed amount vs percentage of
-        // the ride amount, excluding extra charges). Driver earning is the ride
-        // total minus the company fee (admin commission). expenses_charge is
-        // currently not tracked, so it is treated as 0.
-        $admin_commission = optional($this->payment)->admin_commission;
+        // RideRequestController@show / riderequest.show blade): once the ride is
+        // settled, PaymentTrait has already stored the calculated commission on the
+        // payment, so that value wins. Until then it is derived from the service,
+        // honouring its commission_type (fixed amount vs percentage of the ride
+        // amount, excluding extra charges). Note the payments column defaults to 0,
+        // so an unsettled payment row is treated as "not calculated yet" and falls
+        // through to the service. Driver earning is the ride total minus the company
+        // fee (admin commission). expenses_charge is currently not tracked, so it is
+        // treated as 0.
+        $payment_commission = optional($this->payment)->admin_commission;
+        $service_commission = (float) (optional($this->service)->admin_commission ?? 0);
+        $commission_type = optional($this->service)->commission_type;
+        $ride_request_amount = (float) $this->total_amount - (float) $this->extra_charges_amount;
 
-        if ($admin_commission === null) {
-            $service_commission = (float) (optional($this->service)->admin_commission ?? 0);
-            $commission_type = optional($this->service)->commission_type;
-
-            if ($commission_type == 'percentage') {
-                $ride_request_amount = (float) $this->total_amount - (float) $this->extra_charges_amount;
-                $admin_commission = $service_commission ? ($ride_request_amount / 100) * $service_commission : 0;
-            } else {
-                $admin_commission = $service_commission;
-            }
+        if ($payment_commission !== null && (float) $payment_commission > 0) {
+            $admin_commission = (float) $payment_commission;
+            $commission_source = 'payment';
+        } elseif ($commission_type == 'percentage') {
+            $admin_commission = $service_commission ? ($ride_request_amount / 100) * $service_commission : 0;
+            $commission_source = 'service:percentage';
+        } else {
+            $admin_commission = $service_commission;
+            $commission_source = 'service:' . ($commission_type ?: 'fixed(default)');
         }
 
         $admin_commission = (float) $admin_commission;
         $driver_earning = (float) $this->total_amount - $admin_commission;
+
+        if (config('app.log_admin_commission')) {
+            \Log::channel('admin_commission')->debug('RideRequestResource admin_commission resolved', [
+                'ride_request_id'      => $this->id,
+                'status'               => $this->status,
+                'source'               => $commission_source,
+                'service_id'           => $this->service_id,
+                'service_loaded'       => $this->service !== null,
+                'commission_type'      => $commission_type,
+                'service_commission'   => $service_commission,
+                'payment_id'           => optional($this->payment)->id,
+                'payment_commission'   => $payment_commission,
+                'total_amount'         => $this->total_amount,
+                'extra_charges_amount' => $this->extra_charges_amount,
+                'ride_request_amount'  => $ride_request_amount,
+                'admin_commission'     => $admin_commission,
+                'driver_earning'       => $driver_earning,
+            ]);
+        }
 
         $driver_ratings = optional($this->driver)->driverRating ?? collect();
         $rider_ratings = optional($this->rider)->riderRating ?? collect();

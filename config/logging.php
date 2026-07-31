@@ -151,6 +151,13 @@ return [
             'level' => 'info',
             'days' => 7,
         ],
+
+        'admin_commission' => [
+            'driver' => 'daily',
+            'path' => storage_path('logs/admin-commission.log'),
+            'level' => 'debug',
+            'days' => 7,
+        ],
         
         'errorlog' => [
             'driver' => 'errorlog',
