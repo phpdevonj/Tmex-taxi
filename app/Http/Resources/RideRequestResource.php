@@ -123,7 +123,7 @@ class RideRequestResource extends JsonResource
             'seat_count'        => $this->seat_count,
             'reason'            => $this->reason,
             'status'            => $this->status,
-            'tips'              => $this->tips,
+            'tips'              => (float) ($this->tips ?? 0),
             'base_fare'         => $this->base_fare,
             'minimum_fare'      => $this->minimum_fare,
             'per_distance'      => $this->per_distance,
