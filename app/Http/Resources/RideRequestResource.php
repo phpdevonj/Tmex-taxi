@@ -22,10 +22,29 @@ class RideRequestResource extends JsonResource
 
         $getBidAmount = $this->approvedBids()->first();
 
-        // Admin commission comes from the ride's service; driver earning is the
-        // ride total minus the company fee (admin commission). expenses_charge is
+        // Admin commission is resolved the same way as the admin panel (see
+        // RideRequestController@show / riderequest.show blade): once the payment
+        // is settled, PaymentTrait has already stored the calculated commission on
+        // the payment, so that value wins. Until then it is derived from the
+        // service, honouring its commission_type (fixed amount vs percentage of
+        // the ride amount, excluding extra charges). Driver earning is the ride
+        // total minus the company fee (admin commission). expenses_charge is
         // currently not tracked, so it is treated as 0.
-        $admin_commission = (float) (optional($this->service)->admin_commission ?? 0);
+        $admin_commission = optional($this->payment)->admin_commission;
+
+        if ($admin_commission === null) {
+            $service_commission = (float) (optional($this->service)->admin_commission ?? 0);
+            $commission_type = optional($this->service)->commission_type;
+
+            if ($commission_type == 'percentage') {
+                $ride_request_amount = (float) $this->total_amount - (float) $this->extra_charges_amount;
+                $admin_commission = $service_commission ? ($ride_request_amount / 100) * $service_commission : 0;
+            } else {
+                $admin_commission = $service_commission;
+            }
+        }
+
+        $admin_commission = (float) $admin_commission;
         $driver_earning = (float) $this->total_amount - $admin_commission;
 
         $driver_ratings = optional($this->driver)->driverRating ?? collect();
